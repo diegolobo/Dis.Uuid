@@ -4,6 +4,24 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	  <PackageId>Dis.Uuid</PackageId>
+	  <Version>1.0.0</Version>
+	  <Authors>Diego Lobo</Authors>
+	  <Company>DIS</Company>
+	  <Description>High-performance UUID version 7 generator for .NET with time-ordering capabilities</Description>
+	  <PackageTags>uuid;guid;uuid7;time-ordered;performance;dotnet</PackageTags>
+		<ProjectUrl>https://github.com/diegolobo/dis.uuid</ProjectUrl>
+		<RepositoryUrl>https://github.com/diegolobo/dis.uuid</RepositoryUrl>
+	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	  <PackageReadmeFile>README.en-us.md</PackageReadmeFile>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+
+	<ItemGroup>
+		<None Include="../LICENSE.txt" Pack="true" PackagePath=""/>
+		<None Include="../README.en-us.md" Pack="true" PackagePath=""/>
+		<None Include="../README.pt-br.md" Pack="true" PackagePath=""/>
+		<None Include="../README.es-es.md" Pack="true" PackagePath=""/>
+	</ItemGroup>
 
 </Project>

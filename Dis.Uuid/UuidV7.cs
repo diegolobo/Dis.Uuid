@@ -2,10 +2,17 @@
 
 namespace Dis.Uuid;
 
+/// <summary>
+/// UUID version 7 generator.
+/// </summary>
 public static class UuidV7
 {
 	private static readonly ThreadLocal<RandomNumberGenerator> Rng = new(RandomNumberGenerator.Create);
 
+	/// <summary>
+	/// Generates a new UUIDv7.
+	/// </summary>
+	/// <returns>A new <see cref="Guid"/> UUID v7</returns>
 	public static Guid New()
 	{
 		var unixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
