@@ -1,4 +1,9 @@
-﻿namespace Dis.Uuid.Tests;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Dis.Uuid.Tests;
 
 public class UuidV7Tests
 {
@@ -20,7 +25,8 @@ public class UuidV7Tests
 		var guids = new HashSet<Guid>();
 
 		// Act
-		for (var i = 0; i < count; i++) guids.Add(UuidV7.New());
+		for (var i = 0; i < count; i++)
+			guids.Add(UuidV7.New());
 
 		// Assert
 		Assert.Equal(count, guids.Count);
@@ -31,7 +37,7 @@ public class UuidV7Tests
 	{
 		// Arrange & Act
 		var guid1 = UuidV7.New();
-		await Task.Delay(5);
+		await Task.Delay(100);
 		var guid2 = UuidV7.New();
 
 		// Assert
@@ -53,11 +59,13 @@ public class UuidV7Tests
 			.Select(_ => Task.Run(() =>
 			{
 				var threadGuids = new List<Guid>();
-				for (var j = 0; j < guidsPerThread; j++) threadGuids.Add(UuidV7.New());
+				for (var j = 0; j < guidsPerThread; j++)
+					threadGuids.Add(UuidV7.New());
 
 				lock (lockObject)
 				{
-					foreach (var guid in threadGuids) allGuids.Add(guid);
+					foreach (var guid in threadGuids)
+						allGuids.Add(guid);
 				}
 			}))
 			.ToArray();
@@ -66,5 +74,51 @@ public class UuidV7Tests
 
 		// Assert
 		Assert.Equal(threadsCount * guidsPerThread, allGuids.Count);
+	}
+
+	[Fact]
+	public void New_ShouldHaveCorrectVersion()
+	{
+		// Act
+		var guid = UuidV7.New();
+		var bytes = guid.ToByteArray();
+
+		// Assert - UUID v7 deve ter version = 7 nos 4 bits mais significativos do byte 6
+		var version = (bytes[6] & 0xF0) >> 4;
+		Assert.Equal(7, version);
+	}
+
+	[Fact]
+	public void New_ShouldHaveCorrectVariant()
+	{
+		// Act
+		var guid = UuidV7.New();
+		var bytes = guid.ToByteArray();
+
+		// Assert - RFC 4122 variant (10xx nos 2 bits mais significativos do byte 8)
+		var variant = (bytes[8] & 0xC0) >> 6;
+		Assert.Equal(2, variant); // 10 em binário = 2 em decimal
+	}
+
+	[Fact]
+	public void New_ShouldHaveTimestampInFirstBytes()
+	{
+		// Act
+		var before = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+		var guid = UuidV7.New();
+		var after = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+		// Extract timestamp from first 6 bytes
+		var bytes = guid.ToByteArray();
+		var timestamp = ((long)bytes[0] << 40) |
+						((long)bytes[1] << 32) |
+						((long)bytes[2] << 24) |
+						((long)bytes[3] << 16) |
+						((long)bytes[4] << 8) |
+						bytes[5];
+
+		// Assert - timestamp deve estar no intervalo
+		Assert.True(timestamp >= before && timestamp <= after,
+			$"Timestamp {timestamp} should be between {before} and {after}");
 	}
 }

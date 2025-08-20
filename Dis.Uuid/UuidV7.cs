@@ -1,4 +1,6 @@
-﻿using System.Security.Cryptography;
+﻿using System;
+using System.Security.Cryptography;
+using System.Threading;
 
 namespace Dis.Uuid;
 
@@ -19,6 +21,7 @@ public static class UuidV7
 
 		Span<byte> uuid = stackalloc byte[16];
 
+		// Timestamp (48 bits)
 		uuid[0] = (byte)(unixMs >> 40);
 		uuid[1] = (byte)(unixMs >> 32);
 		uuid[2] = (byte)(unixMs >> 24);
@@ -26,10 +29,13 @@ public static class UuidV7
 		uuid[4] = (byte)(unixMs >> 8);
 		uuid[5] = (byte)unixMs;
 
-		Rng.Value?.GetBytes(uuid[6..]);
+		// Gera bytes aleatórios para posições 6-15
+		Rng.Value?.GetBytes(uuid.Slice(6));
 
+		// Version (4 bits) - versão 7
 		uuid[6] = (byte)(0x70 | (uuid[6] & 0x0F));
 
+		// Variant (2 bits) - RFC 4122
 		uuid[8] = (byte)(0x80 | (uuid[8] & 0x3F));
 
 		return new Guid(uuid);
